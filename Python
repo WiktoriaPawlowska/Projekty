@@ -1,0 +1,86 @@
+"""1. Funkcja znajdująca przez użytkownika wyszukiwane słowo i tworząca nowy plik z wierszami, które zawierają to słowo"""
+
+
+nazwaPlikWe = "abc.txt"
+nazwaPlikWy = "abc_2.txt"
+slowo = input("Wpisz wyszukiwane słowo: ")
+
+def szukaj(nazwaPlikWe, nazwaPlikWy, slowo):
+  with open(nazwaPlikWe, 'r') as plikWe:
+    with open(nazwaPlikWy, 'w') as plikWy:
+      for s, line in enumerate(plikWe):
+        if slowo in line:
+           plikWy.write(f"{s+1}: {line}")
+           
+szukaj(nazwaPlikWe, nazwaPlikWy, slowo)
+
+
+"""2. Funkcja zliczająca znaki, białe znaki oraz słowa w pliku"""
+
+plik = open("tekst.txt")
+import string
+def liczZnakiSlowa (plik):
+   tekst = plik.read()
+   znaki = len(tekst)
+   biale_znaki = 0
+   for znak in tekst:
+       if znak in string.whitespace:
+           biale_znaki += 1
+   slowa = len(tekst.split())
+   return [znaki, biale_znaki, slowa]
+   plik.close()
+print(liczZnakiSlowa(plik))
+
+
+"""3. Program wyliczający wysokość rat. cena towaru (od 100 zł do 10 tyś. zł),
+ liczba rat (od 6 do 48).
+Kredyt jest oprocentowany w zależności od liczby rat:
+ od 6–12 wynosi 2.5% ,
+ od 13–24 wynosi 5%,
+ od 25–48 wynosi 10%."""
+ 
+cena = float(input("Wpisz cenę towaru w zł: "))
+while 100 > cena < 10000:
+  cena = float(input("Błędna cena. Wpisz prawidłową cenę towaru w zł (od 100 zł do 10 000 zł): "))
+liczba_rat = int(input("Podaj liczbę rat: "))
+while 6 < liczba_rat > 48:
+  liczba_rat = int(input("Nieakceptowalna liczba rat. Podaj prawidłową liczbę rat (od 6 do 48): "))
+
+rata_mies = cena/liczba_rat #+ odsetki
+
+if 6<=liczba_rat<=12:
+  odsetki1 = (cena*0.025) / liczba_rat
+  rata1 = cena/liczba_rat + odsetki1
+  print (f"Miesięczna rata za zakupiony sprzęt wynosi: {rata1}") 
+
+if 13<=liczba_rat<=24:
+  odsetki2 = (cena*0.05) / liczba_rat
+  rata2 = cena/liczba_rat + odsetki2
+  print (f"Miesięczna rata za zakupiony sprzęt wynosi: {rata2}") 
+
+if 25<=liczba_rat<=48:
+  odsetki3 = (cena*0.10) / liczba_rat
+  rata3 = cena/liczba_rat + odsetki3
+  print (f"Miesięczna rata za zakupiony sprzęt wynosi: {rata3}") 
+
+
+"""4. Gra w za dużo, za mało - odgadnij liczbę"""
+
+import random as losowanie
+losow = losowanie.randint(1,100)
+
+
+d = int(input("Zgadnij liczbę: "))
+e = 1
+
+while d != losow:
+  if d > losow:
+    print("Podałeś za dużą wartość")
+    d = int(input("Zgadnij liczbę: "))
+  else:
+    print("Podałeś za małą wartość")
+    d = int(input("Zgadnij liczbę: "))
+    e+=1
+
+print("Gratulacje")
+
