@@ -1,0 +1,72 @@
+import pandas
+import numpy
+
+wczyt_dane = pandas.read_csv('EURUSD_H4.csv') 
+
+DataFrame = wczyt_dane.head(2500) 
+
+DataFrame.drop('SMA14IND', axis = 1, inplace=True)
+DataFrame.drop('SMA50IND', axis = 1, inplace=True) 
+
+
+ile_pustych = DataFrame[['Close']].isnull().sum() 
+DataFrame['Close'] = DataFrame['Close'].interpolate() 
+
+DataFrame['SMA14'] = DataFrame['SMA14'].fillna(0)
+DataFrame['SMA50'] = DataFrame['SMA50'].fillna(0) 
+
+DataFrame=DataFrame.fillna(0) 
+
+korelacja_SMA14i50 = DataFrame['SMA14'].corr(DataFrame['SMA50']) 
+
+korelacja_2 = DataFrame['Close'].corr(DataFrame['SMA14']) 
+korelacja_3 = DataFrame['Close'].corr(DataFrame['SMA50']) 
+DataFrame.drop('SMA14', axis=1, inplace=True) 
+
+seria = DataFrame['CCI']
+seria_check_less = seria.lt(0) 
+lista = seria_check_less.tolist() 
+ujemne_CCI = lista.count(True) 
+
+
+max_Close = DataFrame['Close'].max()
+min_Close = DataFrame['Close'].min()
+
+max_SMA50 = DataFrame['SMA50'].max()
+min_SMA50 = DataFrame['SMA50'].min()
+
+max_Bulls = DataFrame['Bulls'].max()
+min_Bulls = DataFrame['Bulls'].min()
+
+max_CCI = DataFrame['CCI'].max()
+min_CCI = DataFrame['CCI'].min()
+
+max_DM = DataFrame['DM'].max()
+min_DM = DataFrame['DM'].min()
+
+max_OSMA = DataFrame['OSMA'].max()
+min_OSMA = DataFrame['OSMA'].min()
+
+max_RSI = DataFrame['RSI'].max()
+min_RSI = DataFrame['RSI'].min()
+
+max_Stoch = DataFrame['Stoch'].max()
+min_Stoch = DataFrame['Stoch'].min()
+
+lista_kolumn = ['Close', 'SMA50', 'Bulls', 'CCI', 'DM', 'OSMA', 'RSI', 'Stoch']
+min = [min_Close, min_SMA50, min_Bulls, min_CCI, min_DM, min_OSMA, min_RSI, min_Stoch]
+max = [max_Close, max_SMA50, max_Bulls, max_CCI, max_DM, max_OSMA, max_RSI, max_Stoch] 
+
+atrybuty = ['OSMA', 'Bulls'] #1. Do normalizacji wybrano atrybuty: OSMA i Bulls
+for atrybut in atrybuty:
+  max=DataFrame[atrybut].max()
+  min=DataFrame[atrybut].min()
+  DataFrame[atrybut] = (DataFrame[atrybut]-min)/(max-min) 
+
+seria_1 = pandas.cut(DataFrame['Bulls'], 2, labels=['Lower','Upper']) 
+seria_2 = pandas.cut(DataFrame['Stoch'], 4, labels=['A','B','C', 'D']) 
+
+DataFrame['Decision'].value_counts().plot.pie() 
+DataFrame['Close'].plot() 
+
+DataFrame.to_json("data.json") 
