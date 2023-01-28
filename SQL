@@ -1,1 +1,142 @@
+""" Przygotowanie przykładowej bazy danych danych, składającej się z 4 tabel połączonych ze sobą relacjami """ 
+
+
+CREATE TABLE Kierowcy1
+(
+		ID_kierowcy int primary key identity (1,1),
+		ID_pojazdu_FK int not null, 
+		ID_Prawo_jazdy_FK int not null,
+		Imie nvarchar (60) not null,
+		Nazwisko nvarchar (60) not null,
+		Pesel char (11) unique,
+		Miejsce_urodzenia nvarchar(60) default 'Zakopane', 
+		Kod_pocztowy_zamieszkania char (6) check (Kod_pocztowy_zamieszkania like '[0-9][0-9]-[0-9][0-9][0-9]') 
+) 
+
+ALTER TABLE Kierowcy1
+ADD CONSTRAINT ID_pojazdu_FK
+FOREIGN KEY (ID_pojazdu_FK) REFERENCES Pojazdy2(ID_pojazdu);
+
+ALTER TABLE Kierowcy1
+ADD CONSTRAINT ID_Prawo_jazdy_FK
+FOREIGN KEY (ID_Prawo_jazdy_FK) REFERENCES Prawo_jazdy3(ID_Prawo_jazdy);
+
+INSERT INTO Kierowcy1 VALUES (1, 1, 'Zofia', 'Wi�niewska', '78110482231', 'Bielsko-Bia�a', '81-489') 
+INSERT INTO Kierowcy1 VALUES (2, 2, 'Jan', 'Kowalski', '65032630496', default, '05-930') 
+INSERT INTO Kierowcy1 VALUES (3, 3, 'Adam', 'Nowak', '84062484038', 'Katowice', '40-000') 
+INSERT INTO Kierowcy1 VALUES (4, 4, 'Katarzyna', 'Kowalczyk', '92092604760', default, '32-500') 
+
+SELECT * FROM Kierowcy1
+
+SELECT * 
+FROM Kierowcy1 k1
+	INNER JOIN Pojazdy2 p2 ON k1.ID_pojazdu_FK=p2.ID_pojazdu
+
+SELECT * 
+FROM Kierowcy1 k1
+	INNER JOIN Prawo_jazdy3 p3 ON k1.ID_Prawo_jazdy_FK=p3.ID_Prawo_jazdy
+
+
+CREATE TABLE Pojazdy2
+(
+		ID_pojazdu int primary key identity (1,1),
+		ID_kierowcy_FK int not null foreign key references Kierowcy1(ID_Kierowcy), 
+		ID_karty_FK int not null,
+		Marka varchar (30) default 'Fiat',
+		Model varchar (30) not null,
+		Rok_produkcji char(4) check(Rok_produkcji like '[1-2][0-9][0-9][0-9]')
+) 
+
+ALTER TABLE Pojazdy2
+ADD CONSTRAINT ID_karty_FK
+FOREIGN KEY (ID_karty_FK) REFERENCES Karta_pojazdu4(ID_karty);
+
+
+SELECT * 
+FROM Pojazdy2 p2 
+	INNER JOIN Kierowcy1 k1 ON p2.ID_kierowcy_FK=k1.ID_kierowcy 
+
+SELECT * 
+FROM Pojazdy2 p2 
+	INNER JOIN Karta_pojazdu4 k4 ON p2.ID_karty_FK=k4.ID_karty
+
+
+INSERT INTO Pojazdy2 VALUES (1, 1, 'Opel', 'Mokka', '2006') 
+INSERT INTO Pojazdy2 VALUES (2, 2, default, 'Panda', '1999') 
+INSERT INTO Pojazdy2 VALUES (3, 3, 'Renault', 'Clio', '2020') 
+INSERT INTO Pojazdy2 VALUES (4, 4, 'Toyota', 'Yaris', '1998') 
+
+SELECT * FROM Pojazdy2
+
+
+CREATE TABLE Prawo_jazdy3
+(
+		ID_Prawo_jazdy int primary key identity (1,1), 
+		ID_kierowcy_FK int not null foreign key references Kierowcy1(ID_Kierowcy),
+		ID_pojazdu_FK int not null foreign key references Pojazdy2(ID_Pojazdu),
+		Data_wydania char (10) check (Data_wydania like '[0-3][0-9]-[0-1][0-9]-[1-2][0-9][0-9][0-9]'),
+		Miejsce_wydania nvarchar (60) default 'Zakopane',
+		Liczba_pkt_karnych int check (Liczba_pkt_karnych <= 24) default '0'
+)
+SELECT * 
+FROM Prawo_jazdy3 p3
+	INNER JOIN Kierowcy1 k1 ON p3.ID_kierowcy_FK=k1.ID_kierowcy 
+SELECT * 
+FROM Prawo_jazdy3 p3 
+	INNER JOIN Pojazdy2 p2 ON p3.ID_pojazdu_FK=p2.ID_pojazdu
+
+INSERT INTO Prawo_jazdy3 VALUES (2, 2, '10-03-1994', default, '6') 
+INSERT INTO Prawo_jazdy3 VALUES (4, 4, '28-09-2017', 'Tychy', '4') 
+INSERT INTO Prawo_jazdy3 VALUES (1, 1, '02-12-2001', 'Katowice', default)
+INSERT INTO Prawo_jazdy3 VALUES (3, 3, '16-10-2010', default, '10')  
+
+SELECT * FROM Prawo_jazdy3
+
+
+CREATE TABLE Karta_pojazdu4
+(
+		ID_karty int primary key identity (1,1),
+		ID_pojazdu_FK int not null foreign key references Pojazdy2(ID_pojazdu),
+		ID_kierowcy_FK int not null foreign key references Kierowcy1(ID_kierowcy),
+		Numer_VIN char (10) unique,
+		Rodzaj_pojazdu nvarchar(100) default 'samoch�d osobowy' check (Rodzaj_pojazdu IN ('samoch�d osobowy', 'samoch�d ci�arowy', 'motor')), 
+		Miejsce_wydania nvarchar(100) default 'Zakopane'
+) 
+SELECT * 
+FROM Karta_pojazdu4 k4
+	INNER JOIN Pojazdy2 p2 ON k4.ID_pojazdu_FK=p2.ID_pojazdu
+SELECT * 
+FROM Karta_pojazdu4 k4
+	INNER JOIN Kierowcy1 k1 ON k4.ID_kierowcy_FK=k1.ID_kierowcy 
+
+INSERT INTO Karta_pojazdu4 VALUES (1,1, '7580547937', default, default) 
+INSERT INTO Karta_pojazdu4 VALUES (2,2, '5468649757', 'samoch�d osobowy', 'Katowice')
+INSERT INTO Karta_pojazdu4 VALUES (3,3, '8643689065', default, 'Warszawa')
+INSERT INTO Karta_pojazdu4 VALUES (4,4, '6468965479', 'samoch�d osobowy', 'Cz�stochowa') 
+
+SELECT * FROM Karta_pojazdu4
+
+
+SELECT Imie, Nazwisko, Pesel, Liczba_pkt_karnych
+FROM Prawo_jazdy3 p3
+	INNER JOIN Kierowcy1 k1 ON p3.ID_kierowcy_FK=k1.ID_kierowcy 
+WHERE Liczba_pkt_karnych > 0 
+ORDER BY Liczba_pkt_karnych DESC 
+
+SELECT Numer_VIN, Marka, Model, Rok_produkcji
+FROM Karta_pojazdu4 k4
+	INNER JOIN Pojazdy2 p2 ON k4.ID_pojazdu_FK=p2.ID_pojazdu
+WHERE Rok_produkcji > 2000 
+
+SELECT Numer_VIN, Imie, Nazwisko
+FROM Karta_pojazdu4 k4
+	INNER JOIN Kierowcy1 k1 ON k4.ID_kierowcy_FK=k1.ID_kierowcy 
+WHERE Numer_VIN like '6%' 
+
+SELECT Imie, Nazwisko, Pesel, Miejsce_wydania
+FROM Prawo_jazdy3 p3
+	INNER JOIN Kierowcy1 k1 ON p3.ID_kierowcy_FK=k1.ID_kierowcy 
+WHERE Miejsce_wydania NOT LIKE 'Zakopane' 
+ORDER BY Nazwisko
+
 
